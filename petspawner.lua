@@ -1,11 +1,11 @@
--- Grow A Garden | Nexten Hub (Speed + Teleports + Save Shops)
+-- Grow A Garden | Nexten Hub (Full Script with Touch Fling)
 -- Rayfield GUI | Delta Executor | By Nexten
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Grow A Garden | Nexten Hub",
     LoadingTitle = "Nexten Script Hub",
-    LoadingSubtitle = "Made By Your Friend Kai",
+    LoadingSubtitle = "Your Friend Kai",
     ConfigurationSaving = { Enabled = false },
     Discord = { Enabled = false }
 })
@@ -18,7 +18,9 @@ local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 local Workspace = game:GetService("Workspace")
 
+----------------------------------------------------------------
 -- Speed Boost
+----------------------------------------------------------------
 local defaultSpeed = 16
 local desiredSpeed = defaultSpeed
 
@@ -52,7 +54,7 @@ end)
 -- Teleports with Save Feature
 ----------------------------------------------------------------
 getgenv().NextenGrow = getgenv().NextenGrow or {}
-local STORE = getgenv().NextenGrow -- session storage
+local STORE = getgenv().NextenGrow
 
 local function tpToObjectOrSaved(objName, savedName)
     local char = LP.Character or LP.CharacterAdded:Wait()
@@ -79,22 +81,52 @@ local function saveCurrentPosition(saveName)
 end
 
 -- Teleport buttons
-TeleportsTab:CreateButton({
-    Name = "Go To Gear Shop",
-    Callback = function() tpToObjectOrSaved("GearShop", "GearShop") end
+TeleportsTab:CreateButton({ Name = "Go To Gear Shop", Callback = function() tpToObjectOrSaved("GearShop", "GearShop") end })
+TeleportsTab:CreateButton({ Name = "Save Gear Shop Here", Callback = function() saveCurrentPosition("GearShop") end })
+TeleportsTab:CreateButton({ Name = "Go To Pet Egg Shop", Callback = function() tpToObjectOrSaved("PetShop", "PetShop") end })
+TeleportsTab:CreateButton({ Name = "Save Pet Egg Shop Here", Callback = function() saveCurrentPosition("PetShop") end })
+
+----------------------------------------------------------------
+-- Touch Fling
+----------------------------------------------------------------
+local touchFlingEnabled = false
+local flingPower = 1000 -- adjust for strength
+
+MainTab:CreateToggle({
+    Name = "Touch Fling",
+    CurrentValue = false,
+    Flag = "TouchFling",
+    Callback = function(val)
+        touchFlingEnabled = val
+    end
 })
 
-TeleportsTab:CreateButton({
-    Name = "Save Gear Shop Here",
-    Callback = function() saveCurrentPosition("GearShop") end
-})
+-- Fling function
+local function setupTouchFling()
+    local char = LP.Character or LP.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
 
-TeleportsTab:CreateButton({
-    Name = "Go To Pet Egg Shop",
-    Callback = function() tpToObjectOrSaved("PetShop", "PetShop") end
-})
+    hrp.Touched:Connect(function(hit)
+        if not touchFlingEnabled then return end
+        local player = Players:GetPlayerFromCharacter(hit.Parent)
+        if player and player ~= LP then
+            local targetHRP = hit.Parent:FindFirstChild("HumanoidRootPart")
+            if targetHRP then
+                local bv = Instance.new("BodyVelocity")
+                bv.MaxForce = Vector3.new(9e5, 9e5, 9e5)
+                bv.Velocity = (targetHRP.Position - hrp.Position).Unit * flingPower + Vector3.new(0, flingPower/2, 0)
+                bv.Parent = targetHRP
+                game:GetService("Debris"):AddItem(bv, 0.3) -- removes after 0.3s
+            end
+        end
+    end)
+end
 
-TeleportsTab:CreateButton({
-    Name = "Save Pet Egg Shop Here",
-    Callback = function() saveCurrentPosition("PetShop") end
-})
+-- Setup fling after respawn
+LP.CharacterAdded:Connect(function()
+    task.wait(1)
+    setupTouchFling()
+end)
+
+-- Initial setup
+setupTouchFling()
