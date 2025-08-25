@@ -6,8 +6,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Grow A Garden | Nexten Hub",
-   LoadingTitle = "Loading...",
-   LoadingSubtitle = "Delta Executor",
+   LoadingTitle = "Nexten Script Hub",
+   LoadingSubtitle = "Made By Cubachn48",
    ConfigurationSaving = {
       Enabled = false,
    },
@@ -22,12 +22,15 @@ local TeleportsTab = Window:CreateTab("Teleports", 4483362458)
 local PetsTab = Window:CreateTab("Pets", 4483362458)
 
 ------------------------------------------------------
--- Speed Boost + Fly
+-- Player references
 ------------------------------------------------------
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UIS = game:GetService("UserInputService")
 
+------------------------------------------------------
+-- Speed Boost + Fly
+------------------------------------------------------
 local speedEnabled = false
 local flyEnabled = false
 
@@ -51,7 +54,6 @@ MainTab:CreateToggle({
     Flag = "Fly",
     Callback = function(Value)
         flyEnabled = Value
-
         local char = LocalPlayer.Character
         if not char then return end
         local hrp = char:WaitForChild("HumanoidRootPart")
@@ -65,7 +67,6 @@ MainTab:CreateToggle({
             bv.Velocity = Vector3.zero
             bv.Parent = hrp
 
-            -- Movement handler
             local conn
             conn = game:GetService("RunService").Heartbeat:Connect(function()
                 if not flyEnabled then conn:Disconnect() return end
@@ -87,25 +88,31 @@ MainTab:CreateToggle({
 })
 
 ------------------------------------------------------
--- Teleports
+-- Teleports (auto-detect shops)
 ------------------------------------------------------
-local function tpTo(pos)
+local function tpToObject(objectName)
     local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local hrp = char:WaitForChild("HumanoidRootPart")
-    hrp.CFrame = CFrame.new(pos)
+
+    local target = workspace:FindFirstChild(objectName, true) -- true = search descendants
+    if target and target:IsA("BasePart") then
+        hrp.CFrame = target.CFrame + Vector3.new(0, 5, 0)
+    else
+        warn(objectName .. " not found in Workspace")
+    end
 end
 
 TeleportsTab:CreateButton({
     Name = "Go To Gear Shop",
     Callback = function()
-        tpTo(Vector3.new(100, 5, -50)) -- replace coords with real Gear Shop location
+        tpToObject("GearShop") -- change name if the shop is called differently
     end,
 })
 
 TeleportsTab:CreateButton({
-    Name = "Go To Pet Egg Shop",
+    Name = "Go To Pet Shop",
     Callback = function()
-        tpTo(Vector3.new(-25, 5, 120)) -- replace coords with real Pet Egg Shop location
+        tpToObject("PetShop") -- change name if the shop is called differently
     end,
 })
 
