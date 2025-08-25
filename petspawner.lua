@@ -42,7 +42,7 @@ MainTab:CreateSlider({
     end
 })
 
--- Ensure speed stays after respawn
+-- Keep speed after respawn
 LP.CharacterAdded:Connect(function()
     task.wait(0.5)
     applySpeed()
@@ -52,19 +52,17 @@ end)
 -- Teleports with Save Feature
 ----------------------------------------------------------------
 getgenv().NextenGrow = getgenv().NextenGrow or {}
-local STORE = getgenv().NextenGrow -- Persistent for current executor session
+local STORE = getgenv().NextenGrow -- session storage
 
 local function tpToObjectOrSaved(objName, savedName)
     local char = LP.Character or LP.CharacterAdded:Wait()
     local hrp = char:WaitForChild("HumanoidRootPart")
 
-    -- If saved location exists, teleport there
     if STORE[savedName] then
         hrp.CFrame = STORE[savedName]
         return
     end
 
-    -- Try to find object in workspace
     local target = Workspace:FindFirstChild(objName, true)
     if target and target:IsA("BasePart") then
         hrp.CFrame = target.CFrame + Vector3.new(0,5,0)
@@ -87,14 +85,13 @@ TeleportsTab:CreateButton({
 })
 
 TeleportsTab:CreateButton({
-    Name = "Go To Pet Egg Shop",
-    Callback = function() tpToObjectOrSaved("PetShop", "PetShop") end
-})
-
--- Save buttons
-TeleportsTab:CreateButton({
     Name = "Save Gear Shop Here",
     Callback = function() saveCurrentPosition("GearShop") end
+})
+
+TeleportsTab:CreateButton({
+    Name = "Go To Pet Egg Shop",
+    Callback = function() tpToObjectOrSaved("PetShop", "PetShop") end
 })
 
 TeleportsTab:CreateButton({
