@@ -93,7 +93,7 @@ local touchFlingEnabled = false
 local flingPower = 1000 -- adjust for strength
 
 MainTab:CreateToggle({
-    Name = "Touch Fling",
+    Name = "Touch Fling {nw}",
     CurrentValue = false,
     Flag = "TouchFling",
     Callback = function(val)
