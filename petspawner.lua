@@ -9,42 +9,13 @@ local Workspace = game:GetService("Workspace")
 -- Key System
 getgenv().NextenKeySystem = getgenv().NextenKeySystem or {}
 local keyValidated = getgenv().NextenKeySystem.validated
-
 local correctKey = "food"
 
-local function showKeyGUI()
-    local KeyWindow = Rayfield:CreateWindow({
-        Name = "Nexten Hub | Grow A Garden",
-        LoadingTitle = "Nexten Script Hub",
-        LoadingSubtitle = "Made By Your Friend Kai",
-        ConfigurationSaving = { Enabled = false },
-        Discord = { Enabled = false }
-    })
-
-    KeyWindow:CreateInput({
-        Name = "Enter Key",
-        PlaceholderText = "Enter your key here",
-        RemoveTextAfterFocusLost = false,
-        Callback = function(txt)
-            if txt == correctKey then
-                getgenv().NextenKeySystem.validated = true
-                keyValidated = true
-                Rayfield:Notify({Title = "Success", Content = "Correct key! You can now use the script.", Duration = 5, Image = 4483362458})
-                KeyWindow:Hide() -- hide key input GUI
-                runMainScript()
-            else
-                Rayfield:Notify({Title = "Error", Content = "Incorrect key!", Duration = 5, Image = 4483362458})
-            end
-        end
-    })
-end
-
--- Main script function (all features)
-function runMainScript()
+local function runMainScript()
     local Window = Rayfield:CreateWindow({
         Name = "Grow A Garden | Nexten Hub",
-        LoadingTitle = "Nexten Hub",
-        LoadingSubtitle = "Delta Executor",
+        LoadingTitle = "Nexten Script Hub",
+        LoadingSubtitle = "Made By Your Friend Kai",
         ConfigurationSaving = { Enabled = false },
         Discord = { Enabled = false }
     })
@@ -84,7 +55,7 @@ function runMainScript()
     end)
 
     ----------------------------------------------------------------
-    -- Teleports with Save Feature
+    -- Teleports
     ----------------------------------------------------------------
     getgenv().NextenGrow = getgenv().NextenGrow or {}
     local STORE = getgenv().NextenGrow
@@ -161,9 +132,30 @@ function runMainScript()
     setupTouchFling()
 end
 
--- Run Key GUI or skip if already validated
+-- Run Key Input GUI if not validated
 if keyValidated then
     runMainScript()
 else
-    showKeyGUI()
+    local Window = Rayfield:CreateWindow({
+        Name = "Nexten Hub | Key System",
+        LoadingTitle = "Enter Key to Continue",
+        LoadingSubtitle = "Delta Executor",
+        ConfigurationSaving = { Enabled = false },
+        Discord = { Enabled = false }
+    })
+
+    Window:CreateInput({
+        Name = "Enter Key",
+        PlaceholderText = "Type your key here",
+        RemoveTextAfterFocusLost = true,
+        Callback = function(txt)
+            if txt == correctKey then
+                getgenv().NextenKeySystem.validated = true
+                Rayfield:Notify({Title = "Success", Content = "Correct key! Script unlocked.", Duration = 5, Image = 4483362458})
+                runMainScript()
+            else
+                Rayfield:Notify({Title = "Error", Content = "Incorrect key!", Duration = 5, Image = 4483362458})
+            end
+        end
+    })
 end
