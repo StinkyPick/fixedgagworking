@@ -1,4 +1,4 @@
--- Grow A Garden | Nexten Hub (Speed + Teleports)
+-- Grow A Garden | Nexten Hub (Speed + Teleports + Save Shops)
 -- Rayfield GUI | Delta Executor | By Nexten
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -49,11 +49,22 @@ LP.CharacterAdded:Connect(function()
 end)
 
 ----------------------------------------------------------------
--- Teleports
+-- Teleports with Save Feature
 ----------------------------------------------------------------
-local function tpToObject(objName)
+getgenv().NextenGrow = getgenv().NextenGrow or {}
+local STORE = getgenv().NextenGrow -- Persistent for current executor session
+
+local function tpToObjectOrSaved(objName, savedName)
     local char = LP.Character or LP.CharacterAdded:Wait()
     local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- If saved location exists, teleport there
+    if STORE[savedName] then
+        hrp.CFrame = STORE[savedName]
+        return
+    end
+
+    -- Try to find object in workspace
     local target = Workspace:FindFirstChild(objName, true)
     if target and target:IsA("BasePart") then
         hrp.CFrame = target.CFrame + Vector3.new(0,5,0)
@@ -62,12 +73,31 @@ local function tpToObject(objName)
     end
 end
 
+local function saveCurrentPosition(saveName)
+    local char = LP.Character or LP.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    STORE[saveName] = hrp.CFrame
+    print("Saved "..saveName.." position.")
+end
+
+-- Teleport buttons
 TeleportsTab:CreateButton({
     Name = "Go To Gear Shop",
-    Callback = function() tpToObject("GearShop") end
+    Callback = function() tpToObjectOrSaved("GearShop", "GearShop") end
 })
 
 TeleportsTab:CreateButton({
     Name = "Go To Pet Egg Shop",
-    Callback = function() tpToObject("PetShop") end
+    Callback = function() tpToObjectOrSaved("PetShop", "PetShop") end
+})
+
+-- Save buttons
+TeleportsTab:CreateButton({
+    Name = "Save Gear Shop Here",
+    Callback = function() saveCurrentPosition("GearShop") end
+})
+
+TeleportsTab:CreateButton({
+    Name = "Save Pet Egg Shop Here",
+    Callback = function() saveCurrentPosition("PetShop") end
 })
