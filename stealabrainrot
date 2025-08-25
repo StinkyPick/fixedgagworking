@@ -1,0 +1,129 @@
+-- Steal a Brainrot Rayfield Script with Save Base & Teleport Back
+
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Steal a Brainrot | Nexten",
+    LoadingTitle = "Loading Steal a Brainrot Script",
+    LoadingSubtitle = "By Nexten",
+    ConfigurationSaving = {
+       Enabled = true,
+       FolderName = "StealABrainrot", 
+       FileName = "Config"
+    }
+})
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local RootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- Settings
+local Speed = 100
+local JumpPower = 150
+local TeleportDistance = 20
+local BasePosition = RootPart.Position -- default to starting position
+
+-- Features
+local SpeedToggle = Window:CreateToggle({
+    Name = "Speed Boost",
+    CurrentValue = true,
+    Flag = "SpeedToggle",
+    Callback = function(value)
+        if value then
+            Humanoid.WalkSpeed = Speed
+        else
+            Humanoid.WalkSpeed = 16
+        end
+    end
+})
+
+local JumpToggle = Window:CreateToggle({
+    Name = "Jump Boost",
+    CurrentValue = true,
+    Flag = "JumpToggle",
+    Callback = function(value)
+        if value then
+            Humanoid.JumpPower = JumpPower
+        else
+            Humanoid.JumpPower = 50
+        end
+    end
+})
+
+local AutoStealToggle = Window:CreateToggle({
+    Name = "Auto Steal",
+    CurrentValue = true,
+    Flag = "AutoSteal",
+})
+
+local NoclipToggle = Window:CreateToggle({
+    Name = "Noclip",
+    CurrentValue = true,
+    Flag = "Noclip",
+})
+
+-- Buttons for Base
+Window:CreateButton({
+    Name = "Save Base Here",
+    Callback = function()
+        BasePosition = RootPart.Position
+        Rayfield:Notify({
+            Title = "Base Saved!",
+            Content = "Your current position has been saved as Base.",
+            Duration = 3
+        })
+    end
+})
+
+Window:CreateButton({
+    Name = "Teleport to Base",
+    Callback = function()
+        RootPart.CFrame = CFrame.new(BasePosition)
+        Rayfield:Notify({
+            Title = "Teleported!",
+            Content = "You have been teleported to your Base.",
+            Duration = 3
+        })
+    end
+})
+
+-- Noclip Loop
+RunService.Stepped:Connect(function()
+    if NoclipToggle.CurrentValue then
+        for _, part in pairs(Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- Auto Steal Loop
+RunService.RenderStepped:Connect(function()
+    if AutoStealToggle.CurrentValue then
+        local tool = Character:FindFirstChildWhichIsA("Tool")
+        if tool and tool.Name == "Brainrot" then
+            RootPart.CFrame = CFrame.new(BasePosition)
+        end
+    end
+end)
+
+-- Teleport Forward / Backward
+UserInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.E then
+        RootPart.CFrame = RootPart.CFrame + RootPart.CFrame.LookVector * TeleportDistance
+    elseif input.KeyCode == Enum.KeyCode.Q then
+        RootPart.CFrame = RootPart.CFrame - RootPart.CFrame.LookVector * TeleportDistance
+    end
+end)
+
+Rayfield:Notify({
+    Title = "Loaded!",
+    Content = "Steal a Brainrot Script Loaded Successfully",
+    Duration = 5
+})
